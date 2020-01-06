@@ -1,8 +1,3 @@
-# testmark
-A benchmark utility for the Rust programming language
-
-## Example use
-```rust
 use testmark::Testmark;
 use testmark::Timer;
 
@@ -16,4 +11,3 @@ fn main() {
     bench.stop();
     bench.print();
 }
-```
