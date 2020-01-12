@@ -5,7 +5,6 @@ authors = ["dcmox <dancmox@comcast.net>"]
 edition = "2018"
 description = "A benchmark utility for the Rust programming language"
 license = "MIT"
-license-file = "LICENSE"
 readme = "README.md"
 keywords = ["benchmark", "testmark"]
 
