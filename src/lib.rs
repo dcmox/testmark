@@ -1,38 +1,48 @@
-use std::time;
-
-pub struct Testmark { name: &'static str, start_time: u128, end_time: u128}
-
-pub trait Timer {
-    fn new(name: &'static str) -> Self;
-    fn name(&self) -> &'static str;
+pub struct Slot {
+    slot: String,
+    count: usize,
 }
 
-impl Testmark {
-    pub fn start(&mut self) -> u128 {
-        self.start_time = time::UNIX_EPOCH.elapsed().unwrap().as_millis();
-        self.start_time
-    }
-    pub fn stop(&mut self) -> u128 {
-        self.end_time = time::UNIX_EPOCH.elapsed().unwrap().as_millis();
-        self.end_time
-    }  
-    pub fn time(&mut self) -> u128 {
-        if self.end_time == 0 {
-            time::UNIX_EPOCH.elapsed().unwrap().as_millis() - self.start_time
-        } else {
-            self.end_time - self.start_time
+pub fn generate_dictionary<'a>(data: String, slen: usize) -> Vec<String> {
+    const MLEN: usize = 896;
+    let mut dict: Vec<Slot> = Vec::new();
+    for i in 0..data.len() - slen {
+        for j in 2..slen {
+            let slot: String = data[i..i + j].to_string();
+            if dict.iter().any(|r| r.slot == slot) {
+                // do nothing
+            } else {
+                dict.push(Slot {
+                    slot: slot.to_string(),
+                    count: data.matches(&slot).count(),
+                });
+            }
         }
     }
-    pub fn print(&mut self) {
-        println!("{} took {} ms", self.name(), self.time())
-    }
+    dict.sort_by(|a, b| b.count.cmp(&a.count));
+    let mut v: Vec<String> = dict[0..MLEN].iter().map(|r| r.slot.to_string()).collect();
+    v.sort_by(|a, b| b.len().cmp(&a.len()));
+    v.to_vec()
 }
 
-impl Timer for Testmark {
-    fn new(name: &'static str) -> Testmark {
-        Testmark { name: name, start_time: 0, end_time: 0 }
+pub fn tiny_string_deflate (data: String, dict: Vec<String>) -> String {
+    let mut compressed: String = data;
+    let mut i: u32 = 0;
+    for slot in dict {
+        let r: String = std::char::from_u32(128 + i).unwrap().to_string();
+        compressed = compressed.replace(&slot, &r);
+        i += 1;
     }
-    fn name(&self) -> &'static str {
-        self.name
+    compressed
+}
+
+pub fn tiny_string_inflate (data: String, dict: Vec<String>) -> String {
+    let mut compressed: String = data;
+    let mut i: u32 = 0;
+    for slot in dict {
+        let r: String = std::char::from_u32(128 + i).unwrap().to_string();
+        compressed = compressed.replace(&r, &slot);
+        i += 1;
     }
+    compressed
 }
