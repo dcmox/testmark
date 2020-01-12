@@ -1,3 +1,4 @@
+extern crate testmark;
 use testmark::Testmark;
 use testmark::Timer;
 
